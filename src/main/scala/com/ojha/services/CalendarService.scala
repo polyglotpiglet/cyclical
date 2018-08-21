@@ -13,7 +13,11 @@ import io.circe.syntax._
 
 import io.circe.syntax._
 
+
+
 class CalendarService {
+
+  implicit val decoder: EntityDecoder[IO, Entry] = jsonOf[IO, Entry]
 
   val store: InMemoryEntryStore = new InMemoryEntryStore
 
@@ -21,13 +25,13 @@ class CalendarService {
 
     case GET -> Root / "entry" => Ok(store.getAll.asJson)
 
-    case req @ PUT -> Root / "entry" => {
-      req.decode[Entry] { entry =>
-        store.put(entry)
-        Ok()
-      }
-    }
-
+    case req@PUT -> Root / "entry" =>
+      for {
+        entry <- req.as[Entry]
+        _ = store.put(entry)
+        resp <- Ok("yes")
+      } yield resp
   }
+
 
 }
