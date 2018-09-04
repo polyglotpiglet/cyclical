@@ -13,13 +13,11 @@ object CalendarService {
 
   implicit val decoder: EntityDecoder[IO, Entry] = jsonOf[IO, Entry]
 
-  trait EntryRepo[F[_]] {
-    def find(userId: String): F[Option[Entry]]
-  }
+
 
   def calendarService[F[_]](repo: EntryRepo[F])(implicit F: Effect[F]): HttpService[F] = HttpService[F] {
 
-    case GET -> Root / "entry" / date =>  repo.find(date).flatMap {
+    case GET -> Root / "entry" / IntVar(date) =>  repo.get(date).flatMap {
       case Some(entry) => Response(status = Status.Ok).withBody(entry.asJson)
       case None       => F.pure(Response(status = Status.NotFound))
     }

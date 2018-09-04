@@ -2,7 +2,6 @@ package com.ojha.services
 
 import cats.effect.IO
 import com.ojha.model.Entry
-import com.ojha.services.CalendarService.EntryRepo
 import io.circe.{Encoder, Json}
 import io.circe.generic.semiauto._
 import org.http4s.circe.jsonOf
@@ -14,14 +13,16 @@ class CalendarServiceSpec extends WordSpec with Matchers {
 
   implicit val decoder: EntityDecoder[IO, Json] = jsonOf[IO, Json]
 
+  val repo = new InMemoryEntryRepo
+
   "The calendar service" must {
-    "return an entry" in {
+    "return a valid entry via get" in {
 
       implicit val UserEncoder: Encoder[Entry] = deriveEncoder[Entry]
 
-      val success: EntryRepo[IO] = (id: String) => IO.pure(Some(Entry(20180101, false)))
+      repo.createOrUpdate(Entry(20180101, period = false))
 
-      val response: IO[Response[IO]] = CalendarService.calendarService[IO](success).orNotFound.run(
+      val response: IO[Response[IO]] = CalendarService.calendarService[IO](repo).orNotFound.run(
         Request(method = Method.GET, uri = Uri.uri("/entry/20180101") )
       )
 
@@ -30,8 +31,7 @@ class CalendarServiceSpec extends WordSpec with Matchers {
         ("period",  Json.fromBoolean(false))
       )
 
-      val happy = check[Json](response, Status.Ok, Some(expectedJson))
-      happy shouldBe true
+      check[Json](response, Status.Ok, Some(expectedJson)) shouldBe true
 
     }
   }

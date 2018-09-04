@@ -9,16 +9,15 @@ import org.http4s.server.blaze.BlazeBuilder
 import scala.concurrent.ExecutionContext.Implicits.global
 
 
-//object Main extends StreamApp[IO] {
+object Main extends StreamApp[IO] {
 
-//  val store: InMemoryEntryStore = new InMemoryEntryStore
-//
-//  override def stream(args: List[String], requestShutdown: IO[Unit]): Stream[IO, ExitCode] =
-//    BlazeBuilder[IO]
-//      .bindHttp(8080, "localhost")
-//      .mountService(CalendarService.calendarService, "/")
-//      .serve
-//}
+
+  override def stream(args: List[String], requestShutdown: IO[Unit]): Stream[IO, ExitCode] =
+    BlazeBuilder[IO]
+      .bindHttp(8080, "localhost")
+      .mountService(CalendarService.calendarService(null), "/")
+      .serve
+}
 
 /*
 To do:
