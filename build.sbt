@@ -17,6 +17,7 @@ libraryDependencies ++= Seq(
   "org.http4s" %% "http4s-circe" % http4sVersion,
   "io.circe" %% "circe-generic" % "0.10.0-M1",
   "io.circe" %% "circe-literal" % "0.10.0-M1",
+  "io.circe" %% "circe-parser" % "0.10.0-M1",
 
 
   //  "org.scalactic" %% "scalactic" % "3.0.5",
