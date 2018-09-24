@@ -26,6 +26,11 @@ object CalendarService {
       repo.createOrUpdate(createEntry(date, entry)).flatMap(_ => F.pure(Response(status = Status.Created)))
     })
 
+    case DELETE -> Root / "entry" / IntVar(date) => repo.delete(date).flatMap {
+      case Some(_) => F.pure(Response(status = Status.Ok))
+      case None => F.pure(Response(status = Status.NotFound))
+    }
+
   }
 
   private def createEntry(date: Int, newEntry: InboundEntry): Entry = Entry(date, newEntry.period)

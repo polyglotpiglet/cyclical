@@ -61,8 +61,32 @@ class CalendarServiceSpec extends WordSpec with Matchers {
 
       response.status shouldBe Status.Created
       val storedData = repo.getAll.unsafeRunSync()
-      storedData shouldBe Seq(Entry(20180101, false))
+      storedData shouldBe Seq(Entry(20180101, period = false))
     }
+
+    "deleting an entry that already exists returns 200" in {
+
+      val entry = Entry(20180101, period = false)
+      repo.createOrUpdate(entry).unsafeRunSync()
+
+      val response: Response[IO] = CalendarService.calendarService[IO](repo).orNotFound.run(
+        Request(method = Method.DELETE, uri = Uri.uri("/entry/20180101"))
+      ).unsafeRunSync()
+
+      response.status shouldBe Status.Ok
+      val storedData = repo.getAll.unsafeRunSync()
+      storedData shouldBe Seq()
+    }
+
+    "deleting an entry that does not exist returns 404" in {
+
+      val response: Response[IO] = CalendarService.calendarService[IO](repo).orNotFound.run(
+        Request(method = Method.DELETE, uri = Uri.uri("/entry/20180101"))
+      ).unsafeRunSync()
+
+      response.status shouldBe Status.NotFound
+    }
+
   }
 
 
